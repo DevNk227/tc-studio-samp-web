@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ตารางข้อมูลผู้เล่น
+model User {
+  id           Int           @id @default(autoincrement())
+  username     String        @unique
+  password     String        // รหัสผ่านของเกม
+  role         String        @default("user") // เอาไว้แยก admin กับ user ธรรมดา
+  createdAt    DateTime      @default(now())
+  
+  // เชื่อมความสัมพันธ์กับตารางแพ็กเกจ (1 ไอดี มี 1 แพ็กเกจที่ใช้งานอยู่)
+  subscription Subscription? 
+}
+
+// ตารางข้อมูลแพ็กเกจที่เปิดขายบนเว็บ
+model Package {
+  id           Int            @id @default(autoincrement())
+  name         String         // ชื่อแพ็กเกจ เช่น VIP 30 Days
+  price        Float          // ราคา
+  durationDays Int            // จำนวนวัน
+  
+  subscriptions Subscription[]
+}
+
+// ตารางเก็บข้อมูลการเช่าแพ็กเกจ และเช็ค Device ID ของ Launcher
+model Subscription {
+  id          Int      @id @default(autoincrement())
+  
+  userId      Int      @unique
+  user        User     @relation(fields: [userId], references: [id])
+  
+  packageId   Int
+  package     Package  @relation(fields: [packageId], references: [id])
+  
+  hwid        String?  // เก็บ Device ID มือถือ (ตอนซื้อใหม่ๆ ให้เป็นค่าว่างไว้ก่อน)
+  startDate   DateTime @default(now())
+  expireDate  DateTime // วันหมดอายุ (เอาไว้ให้ API เช็ค)
+}
