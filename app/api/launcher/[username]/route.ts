@@ -4,10 +4,11 @@ import prisma from "@/lib/prisma";
 
 export async function GET(
   request: Request,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> } // <-- 1. แก้เป็น Promise ตรงนี้
 ) {
   try {
-    const { username } = params;
+    const resolvedParams = await params; // <-- 2. สั่ง await เพื่อดึงค่า params
+    const username = resolvedParams.username;
 
     // 1. ค้นหาผู้ใช้จากชื่อ Username ที่ส่งมาใน URL
     const user = await prisma.user.findUnique({
@@ -22,7 +23,6 @@ export async function GET(
       return NextResponse.json({ error: "ไม่พบข้อมูลผู้ใช้งาน" }, { status: 404 });
     }
 
-    // (ตัวเลือกเสริม) เช็คว่าแพ็กเกจหมดอายุหรือยัง ถ้าหมดอายุอาจจะส่ง error กลับไปให้ Launcher แจ้งเตือน
     const now = new Date();
     const isExpired = user.subscription ? user.subscription.expireDate < now : true;
     if (isExpired) {
@@ -49,7 +49,7 @@ export async function GET(
       });
     }
 
-    // 3. จัดรูปแบบ JSON ให้ตรงกับที่แอปมือถือต้องการเป๊ะๆ
+    // 3. จัดรูปแบบ JSON ให้ตรงกับที่แอปมือถือต้องการ
     const apiJson = {
       clientVersionCode: config.clientVersionCode,
       clientSampVersionCode: config.clientSampVersionCode,
