@@ -1,15 +1,14 @@
 // src/app/launcher-config/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import { Save, Settings, AlertCircle, Link as LinkIcon, Smartphone, FileZip, CheckCircle2 } from "lucide-react";
+import { Save, Settings, AlertCircle, Link as LinkIcon, Smartphone, Archive, CheckCircle2 } from "lucide-react";
 
 export default function LauncherConfigPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   
-  // สถานะเก็บข้อมูล api.json
   const [config, setConfig] = useState({
     clientVersionCode: 1,
     clientSampVersionCode: 1,
@@ -78,7 +77,6 @@ export default function LauncherConfigPage() {
 
         <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-6 md:p-10 shadow-2xl">
           
-          {/* หมวดหมู่: เวอร์ชัน (Version Codes) */}
           <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-6 border-b border-slate-800 pb-2">
             <Smartphone className="text-blue-500" /> อัปเดตเวอร์ชันแอป
           </h3>
@@ -97,9 +95,8 @@ export default function LauncherConfigPage() {
             </div>
           </div>
 
-          {/* หมวดหมู่: ไฟล์เกมและแอป */}
           <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-6 border-b border-slate-800 pb-2">
-            <FileZip className="text-green-500" /> ลิงก์ดาวน์โหลดไฟล์
+            <Archive className="text-green-500" /> ลิงก์ดาวน์โหลดไฟล์
           </h3>
           <div className="space-y-4 mb-10">
             <div>
@@ -122,7 +119,6 @@ export default function LauncherConfigPage() {
             </div>
           </div>
 
-          {/* หมวดหมู่: โซเชียลมีเดีย */}
           <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-6 border-b border-slate-800 pb-2">
             <LinkIcon className="text-purple-500" /> ช่องทางการติดต่อ (Socials)
           </h3>

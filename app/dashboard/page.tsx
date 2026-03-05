@@ -1,32 +1,24 @@
 // src/app/dashboard/page.tsx
 import Navbar from '@/components/Navbar'
-import { Calendar, Monitor, CheckCircle, AlertCircle, ShoppingBag } from 'lucide-react'
+import { Calendar, Monitor, CheckCircle, ShoppingBag, Settings } from 'lucide-react'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
-import CheckoutButton from "./CheckoutButton"; // สร้างไฟล์แยกสำหรับปุ่ม
+import CheckoutButton from "./CheckoutButton"
 
 export default async function DashboardPage() {
-  // 1. เช็คว่ามีคนล็อกอินอยู่ไหม ถ้าไม่มีให้เด้งไปหน้า Login
   const session = await getServerSession(authOptions);
   if (!session || !session.user) {
     redirect('/login');
   }
 
-  // 2. ดึงข้อมูลผู้เล่น และข้อมูลแพ็กเกจที่เช่าอยู่จากฐานข้อมูล Neon
   const userData = await prisma.user.findUnique({
     where: { username: session.user.name as string },
-    include: { 
-      subscription: {
-        include: { package: true } // ดึงชื่อของแพ็กเกจมาด้วย
-      } 
-    }
+    include: { subscription: { include: { package: true } } }
   });
 
   const sub = userData?.subscription;
-  
-  // 3. เช็คสถานะวันหมดอายุ
   const now = new Date();
   const isExpired = sub ? sub.expireDate < now : true;
   const isStatusActive = sub && !isExpired;
@@ -36,7 +28,6 @@ export default async function DashboardPage() {
     statusText = isExpired ? "หมดอายุ" : "กำลังใช้งาน";
   }
 
-  // ฟังก์ชันแปลงวันที่เป็นภาษาไทยให้ดูสวยงาม
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('th-TH', { 
       year: 'numeric', month: 'long', day: 'numeric' 
@@ -44,10 +35,10 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-slate-950 text-white pb-28">
       <Navbar />
       
-      <main className="max-w-6xl mx-auto p-6 mt-8">
+      <main className="max-w-6xl mx-auto p-6 mt-8 relative z-10">
         <h1 className="text-3xl font-bold mb-8">ยินดีต้อนรับ, {session.user.name}!</h1>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -59,7 +50,7 @@ export default async function DashboardPage() {
             
             <div className="relative z-10">
               <h2 className="text-slate-400 text-lg mb-2">สถานะการเช่าปัจจุบัน</h2>
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex flex-wrap items-center gap-3 mb-6">
                 <span className={`px-4 py-1 rounded-full text-sm font-semibold ${
                   isStatusActive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
                 }`}>
@@ -70,7 +61,7 @@ export default async function DashboardPage() {
                 </h3>
               </div>
 
-              <div className="grid grid-cols-2 gap-8">
+              <div className="grid sm:grid-cols-2 gap-8">
                 <div className="flex items-start gap-3">
                   <div className="bg-blue-600/20 p-2 rounded-lg text-blue-500"><Calendar /></div>
                   <div>
@@ -84,7 +75,7 @@ export default async function DashboardPage() {
                   <div className="bg-purple-600/20 p-2 rounded-lg text-purple-500"><Monitor /></div>
                   <div>
                     <p className="text-slate-500 text-sm">อุปกรณ์ที่ผูกไว้ (HWID)</p>
-                    <p className="font-mono text-slate-300">
+                    <p className="font-mono text-slate-300 break-all text-sm sm:text-base">
                       {sub?.hwid ? sub.hwid : (sub ? "รอเข้าเกมเพื่อผูกอุปกรณ์" : "-")}
                     </p>
                   </div>
@@ -93,7 +84,7 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          {/* การ์ดจัดการ Launcher (แทนที่การ์ดแจ้งเตือนอันเดิม) */}
+          {/* การ์ดจัดการ Launcher */}
           <div className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-3xl p-8 flex flex-col justify-between text-white relative overflow-hidden group shadow-2xl border border-purple-500/30">
             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
               <Monitor size={100} />
@@ -104,13 +95,14 @@ export default async function DashboardPage() {
                 </div>
                 <h3 className="text-2xl font-black mb-2 tracking-tight">ตั้งค่าแอป Launcher</h3>
                 <p className="text-indigo-200 text-sm leading-relaxed mb-6">
-                  จัดการลิงก์ดาวน์โหลดไฟล์เกม, เวอร์ชันแอป, และช่องทางการติดต่อสำหรับผู้เล่นในเซิร์ฟเวอร์ของคุณ
+                  จัดการลิงก์ดาวน์โหลดไฟล์เกม, เวอร์ชันแอป, และช่องทางการติดต่อสำหรับผู้เล่น
                 </p>
             </div>
             <a href="/launcher-config" className="relative z-10 block text-center bg-white text-indigo-900 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-[1.02]">
               จัดการตั้งค่า API
             </a>
           </div>
+        </div>
 
         {/* หน้าร้านค้า */}
         <div className="mt-12 mb-20">
@@ -119,7 +111,6 @@ export default async function DashboardPage() {
            </h2>
            
            <div className="grid md:grid-cols-3 gap-6">
-              {/* ดึงแพ็กเกจทั้งหมดจากฐานข้อมูลมาโชว์ */}
               {await prisma.package.findMany({ orderBy: { durationDays: 'asc' } }).then(packages => 
                 packages.map((pkg) => (
                   <div key={pkg.id} className="bg-slate-900 border border-slate-800 p-6 rounded-2xl hover:border-blue-500/50 transition-all flex flex-col justify-between">
@@ -130,7 +121,6 @@ export default async function DashboardPage() {
                         <span className="text-3xl font-bold text-blue-500">฿{pkg.price}</span>
                       </div>
                     </div>
-                    {/* ปุ่มกดซื้อที่เราจะสร้างเป็น Client Component */}
                     <CheckoutButton packageId={pkg.id} packageName={pkg.name} />
                   </div>
                 ))
