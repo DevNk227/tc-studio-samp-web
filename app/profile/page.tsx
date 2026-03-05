@@ -4,7 +4,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-import { Shield, Clock, Monitor, KeyRound, Star, UserCircle } from "lucide-react";
+import Link from "next/link"; // <-- นำเข้า Link
+import { Shield, Clock, Monitor, KeyRound, Star, ShieldAlert } from "lucide-react"; // <-- เพิ่ม ShieldAlert
 
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
@@ -27,7 +28,6 @@ export default async function ProfilePage() {
   const avatarUrl = `https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=${user.username}&backgroundColor=1e293b`;
 
   return (
-    // เพิ่ม pb-28 เพื่อเว้นที่ให้เมนูมือถือด้านล่าง
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans pb-28">
       <Navbar />
 
@@ -54,9 +54,9 @@ export default async function ProfilePage() {
           <div className="flex-1 w-full">
             <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3 break-all">{user.username}</h1>
             <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-4 text-slate-400 text-xs sm:text-sm font-medium">
-              <span className="flex items-center justify-center gap-1 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700 w-full sm:w-auto">
+              <span className={`flex items-center justify-center gap-1 px-3 py-1.5 rounded-full border w-full sm:w-auto ${user.role === 'admin' ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-slate-800 border-slate-700 text-blue-400'}`}>
                 <Shield size={14} className={user.role === 'admin' ? "text-red-400" : "text-blue-400"} /> 
-                {user.role === 'admin' ? "ผู้ดูแลระบบ" : "ผู้เล่นทั่วไป"}
+                {user.role === 'admin' ? "ผู้ดูแลระบบ (Admin)" : "ผู้เล่นทั่วไป"}
               </span>
               <span className="flex items-center justify-center gap-1 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700 w-full sm:w-auto">
                 <Clock size={14} className="text-slate-400" /> เข้าเมื่อ: {joinDate}
@@ -64,7 +64,15 @@ export default async function ProfilePage() {
             </div>
           </div>
 
-          <div className="shrink-0 w-full md:w-auto mt-2 md:mt-0">
+          {/* โซนปุ่มกด (อัปเดตใหม่ให้รองรับปุ่มแอดมิน) */}
+          <div className="shrink-0 w-full md:w-auto mt-4 md:mt-0 flex flex-col gap-3">
+            {/* ปุ่มเข้าหลังบ้าน จะโชว์เฉพาะคนที่เป็น Admin เท่านั้น */}
+            {user.role === 'admin' && (
+              <Link href="/admin" className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-xl transition-all font-bold shadow-lg shadow-red-600/20 text-sm sm:text-base border border-red-500">
+                <ShieldAlert size={18} /> จัดการระบบ (Admin)
+              </Link>
+            )}
+
             <button className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl transition-all border border-slate-700 font-bold shadow-lg text-sm sm:text-base">
               <KeyRound size={18} /> เปลี่ยนรหัสผ่าน
             </button>
@@ -74,7 +82,6 @@ export default async function ProfilePage() {
         {/* ข้อมูลแพ็กเกจและ HWID */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
           
-          {/* กล่องแพ็กเกจ */}
           <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-6 sm:p-8 hover:border-blue-500/30 transition-colors">
             <h3 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6 flex items-center gap-2">
               <Star className="text-blue-500" /> แพ็กเกจที่ใช้งาน
@@ -98,7 +105,6 @@ export default async function ProfilePage() {
             )}
           </div>
 
-          {/* กล่อง HWID */}
           <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-6 sm:p-8 hover:border-purple-500/30 transition-colors">
             <h3 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6 flex items-center gap-2">
               <Monitor className="text-purple-500" /> อุปกรณ์ (HWID)

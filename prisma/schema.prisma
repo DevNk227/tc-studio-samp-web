@@ -19,6 +19,7 @@ model User {
   // เชื่อมความสัมพันธ์กับตารางแพ็กเกจ (1 ไอดี มี 1 แพ็กเกจที่ใช้งานอยู่)
   subscription Subscription? 
   topups       TopupHistory[]
+  launcherConfig LauncherConfig?
 }
 
 // ตารางข้อมูลแพ็กเกจที่เปิดขายบนเว็บ
@@ -53,4 +54,23 @@ model TopupHistory {
   amount        Float    // จำนวนเงินที่เติม
   slipRef       String   @unique // รหัสอ้างอิงสลิป (สำคัญมาก! ใส่ @unique เพื่อให้ระบบกันสลิปซ้ำอัตโนมัติ)
   createdAt     DateTime @default(now())
+}
+
+// ตารางเก็บการตั้งค่า API Launcher ของลูกค้าแต่ละคน
+model LauncherConfig {
+  id                    Int      @id @default(autoincrement())
+  userId                Int      @unique
+  user                  User     @relation(fields: [userId], references: [id])
+  clientVersionCode     Int      @default(1)
+  clientSampVersionCode Int      @default(1)
+  gameFilesVersionCode  Int      @default(1)
+  urlGameFiles          String   @default("")
+  urlGameFilesUpd       String   @default("")
+  urlVk                 String   @default("")
+  urlDiscord            String   @default("")
+  urlYoutube            String   @default("")
+  urlForum              String   @default("")
+  urlDonate             String   @default("")
+  urlClient             String   @default("")
+  urlClientSampApk      String   @default("")
 }

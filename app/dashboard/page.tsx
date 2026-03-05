@@ -93,18 +93,24 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          {/* การ์ดแจ้งเตือน */}
-          <div className="bg-blue-600 rounded-3xl p-8 flex flex-col justify-between text-white relative overflow-hidden group">
-            <div className="relative z-10">
-                <AlertCircle size={32} className="mb-4" />
-                <h3 className="text-xl font-bold mb-2">ต้องการย้ายอุปกรณ์?</h3>
-                <p className="text-blue-100 text-sm">หากต้องการเปลี่ยนมือถือเครื่องใหม่ สามารถติดต่อแอดมินเพื่อรีเซ็ต HWID ได้ฟรี!</p>
+          {/* การ์ดจัดการ Launcher (แทนที่การ์ดแจ้งเตือนอันเดิม) */}
+          <div className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-3xl p-8 flex flex-col justify-between text-white relative overflow-hidden group shadow-2xl border border-purple-500/30">
+            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
+              <Monitor size={100} />
             </div>
-            <button className="mt-6 bg-white text-blue-600 py-2 rounded-xl font-bold hover:bg-blue-50 transition-all z-10">
-              ติดต่อแอดมิน
-            </button>
+            <div className="relative z-10">
+                <div className="bg-purple-500/20 w-fit p-3 rounded-xl mb-4 text-purple-300">
+                  <Settings size={28} />
+                </div>
+                <h3 className="text-2xl font-black mb-2 tracking-tight">ตั้งค่าแอป Launcher</h3>
+                <p className="text-indigo-200 text-sm leading-relaxed mb-6">
+                  จัดการลิงก์ดาวน์โหลดไฟล์เกม, เวอร์ชันแอป, และช่องทางการติดต่อสำหรับผู้เล่นในเซิร์ฟเวอร์ของคุณ
+                </p>
+            </div>
+            <a href="/launcher-config" className="relative z-10 block text-center bg-white text-indigo-900 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-[1.02]">
+              จัดการตั้งค่า API
+            </a>
           </div>
-        </div>
 
         {/* หน้าร้านค้า */}
         <div className="mt-12 mb-20">
