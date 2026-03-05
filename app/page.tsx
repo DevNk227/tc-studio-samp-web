@@ -51,9 +51,9 @@ export default async function HomePage() {
 
             {/* ลดขนาดลงจาก text-7xl เป็น text-5xl md:text-6xl */}
             <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-6 drop-shadow-lg">
-              ยกระดับการเล่น SAMP <br />
+              บริการเช่า รันเชอร์ มือถือ  <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 drop-shadow-none">
-                บนมือถือที่ดีที่สุด
+              ที่ดีที่สุด
               </span>
             </h1>
             
