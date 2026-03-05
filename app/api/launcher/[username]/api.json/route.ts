@@ -62,7 +62,9 @@ export async function GET(
       URL_FORUM: config.urlForum,
       URL_DONATE: config.urlDonate,
       URL_CLIENT: config.urlClient,
-      URL_CLIENTSAMPAPK: config.urlClientSampApk
+      URL_CLIENTSAMPAPK: config.urlClientSampApk,
+      SERVER_IP: config.serverIp,
+      SERVER_PORT: config.serverPort
     };
 
     return NextResponse.json(apiJson);

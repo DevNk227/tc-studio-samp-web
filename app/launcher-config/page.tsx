@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import { Save, Settings, AlertCircle, Link as LinkIcon, Smartphone, Archive, CheckCircle2 } from "lucide-react";
+import { Save, Settings, AlertCircle, Link as LinkIcon, Smartphone, Archive, CheckCircle2, Monitor } from "lucide-react";
 
 export default function LauncherConfigPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +21,9 @@ export default function LauncherConfigPage() {
     urlForum: "",
     urlDonate: "",
     urlClient: "",
-    urlClientSampApk: ""
+    urlClientSampApk: "",
+    serverIp: "127.0.0.1",
+    serverPort: 7777
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,6 +129,21 @@ export default function LauncherConfigPage() {
             <div><label className="text-slate-400 text-sm font-medium mb-1 block">VK</label><input type="text" name="urlVk" value={config.urlVk} onChange={handleChange} placeholder="https://vk.com/..." className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-3 focus:border-purple-500 outline-none" /></div>
             <div><label className="text-slate-400 text-sm font-medium mb-1 block">YouTube</label><input type="text" name="urlYoutube" value={config.urlYoutube} onChange={handleChange} placeholder="https://youtube.com/..." className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-3 focus:border-purple-500 outline-none" /></div>
             <div><label className="text-slate-400 text-sm font-medium mb-1 block">Donate / Forum</label><input type="text" name="urlDonate" value={config.urlDonate} onChange={handleChange} placeholder="https://..." className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-3 focus:border-purple-500 outline-none" /></div>
+          </div>
+
+          {/* หมวดหมู่: ตั้งค่าเซิร์ฟเวอร์ (VPS) */}
+          <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-6 border-b border-slate-800 pb-2">
+            <Monitor className="text-red-500" /> ตั้งค่าการเชื่อมต่อเซิร์ฟเวอร์ (SAMP Server)
+          </h3>
+          <div className="grid md:grid-cols-2 gap-4 mb-10">
+            <div>
+              <label className="text-slate-400 text-sm font-medium mb-1 block">IP เซิร์ฟเวอร์ (VPS)</label>
+              <input type="text" name="serverIp" value={config.serverIp} onChange={handleChange} placeholder="เช่น 140.99.98.122" className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-3 focus:border-red-500 outline-none font-mono" />
+            </div>
+            <div>
+              <label className="text-slate-400 text-sm font-medium mb-1 block">Port (พอร์ต)</label>
+              <input type="number" name="serverPort" value={config.serverPort} onChange={handleChange} placeholder="เช่น 7777" className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-3 focus:border-red-500 outline-none font-mono" />
+            </div>
           </div>
 
           <button 

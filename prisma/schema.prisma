@@ -73,4 +73,7 @@ model LauncherConfig {
   urlDonate             String   @default("")
   urlClient             String   @default("")
   urlClientSampApk      String   @default("")
+
+  serverIp              String   @default("127.0.0.1")
+  serverPort            Int      @default(7777)
 }
