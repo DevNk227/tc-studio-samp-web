@@ -1,22 +1,54 @@
 // src/app/dashboard/page.tsx
 import Navbar from '@/components/Navbar'
 import { Calendar, Monitor, CheckCircle, AlertCircle, ShoppingBag } from 'lucide-react'
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { redirect } from "next/navigation"
+import prisma from "@/lib/prisma"
+import CheckoutButton from "./CheckoutButton"; // สร้างไฟล์แยกสำหรับปุ่ม
 
-export default function DashboardPage() {
-  // สมมติข้อมูล (ในขั้นถัดไปเราจะดึงจาก Database จริง)
-  const subscription = {
-    status: 'Active', // หรือ 'Expired', 'None'
-    packageName: 'VIP Extreme 30 Days',
-    expireDate: '25 เมษายน 2567',
-    hwid: '3f8e-2a1c-9b0d-4455'
+export default async function DashboardPage() {
+  // 1. เช็คว่ามีคนล็อกอินอยู่ไหม ถ้าไม่มีให้เด้งไปหน้า Login
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) {
+    redirect('/login');
   }
+
+  // 2. ดึงข้อมูลผู้เล่น และข้อมูลแพ็กเกจที่เช่าอยู่จากฐานข้อมูล Neon
+  const userData = await prisma.user.findUnique({
+    where: { username: session.user.name as string },
+    include: { 
+      subscription: {
+        include: { package: true } // ดึงชื่อของแพ็กเกจมาด้วย
+      } 
+    }
+  });
+
+  const sub = userData?.subscription;
+  
+  // 3. เช็คสถานะวันหมดอายุ
+  const now = new Date();
+  const isExpired = sub ? sub.expireDate < now : true;
+  const isStatusActive = sub && !isExpired;
+  
+  let statusText = "ยังไม่มีแพ็กเกจ";
+  if (sub) {
+    statusText = isExpired ? "หมดอายุ" : "กำลังใช้งาน";
+  }
+
+  // ฟังก์ชันแปลงวันที่เป็นภาษาไทยให้ดูสวยงาม
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('th-TH', { 
+      year: 'numeric', month: 'long', day: 'numeric' 
+    });
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <Navbar />
       
       <main className="max-w-6xl mx-auto p-6 mt-8">
-        <h1 className="text-3xl font-bold mb-8">ยินดีต้อนรับกลับมา!</h1>
+        <h1 className="text-3xl font-bold mb-8">ยินดีต้อนรับ, {session.user.name}!</h1>
 
         <div className="grid md:grid-cols-3 gap-6">
           {/* การ์ดสถานะหลัก */}
@@ -29,11 +61,13 @@ export default function DashboardPage() {
               <h2 className="text-slate-400 text-lg mb-2">สถานะการเช่าปัจจุบัน</h2>
               <div className="flex items-center gap-3 mb-6">
                 <span className={`px-4 py-1 rounded-full text-sm font-semibold ${
-                  subscription.status === 'Active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                  isStatusActive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
                 }`}>
-                  {subscription.status === 'Active' ? 'กำลังใช้งาน' : 'หมดอายุ'}
+                  {statusText}
                 </span>
-                <h3 className="text-2xl font-bold">{subscription.packageName}</h3>
+                <h3 className="text-2xl font-bold">
+                  {sub ? sub.package.name : "กรุณาเลือกซื้อแพ็กเกจด้านล่าง"}
+                </h3>
               </div>
 
               <div className="grid grid-cols-2 gap-8">
@@ -41,21 +75,25 @@ export default function DashboardPage() {
                   <div className="bg-blue-600/20 p-2 rounded-lg text-blue-500"><Calendar /></div>
                   <div>
                     <p className="text-slate-500 text-sm">วันหมดอายุ</p>
-                    <p className="font-semibold text-lg">{subscription.expireDate}</p>
+                    <p className="font-semibold text-lg">
+                      {sub ? formatDate(sub.expireDate) : "-"}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="bg-purple-600/20 p-2 rounded-lg text-purple-500"><Monitor /></div>
                   <div>
                     <p className="text-slate-500 text-sm">อุปกรณ์ที่ผูกไว้ (HWID)</p>
-                    <p className="font-mono text-slate-300">{subscription.hwid || 'ยังไม่ระบุ'}</p>
+                    <p className="font-mono text-slate-300">
+                      {sub?.hwid ? sub.hwid : (sub ? "รอเข้าเกมเพื่อผูกอุปกรณ์" : "-")}
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* การ์ดแจ้งเตือน/โปรโมชั่น */}
+          {/* การ์ดแจ้งเตือน */}
           <div className="bg-blue-600 rounded-3xl p-8 flex flex-col justify-between text-white relative overflow-hidden group">
             <div className="relative z-10">
                 <AlertCircle size={32} className="mb-4" />
@@ -68,29 +106,29 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ส่วนหน้าร้านค้าเบื้องต้น */}
-        <div className="mt-12">
+        {/* หน้าร้านค้า */}
+        <div className="mt-12 mb-20">
            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
              <ShoppingBag className="text-blue-500" /> แพ็กเกจที่พร้อมใช้งาน
            </h2>
+           
            <div className="grid md:grid-cols-3 gap-6">
-              {[
-                { name: 'VIP Basic', days: 7, price: 50 },
-                { name: 'VIP Pro', days: 15, price: 90 },
-                { name: 'VIP Extreme', days: 30, price: 150 },
-              ].map((pkg, idx) => (
-                <div key={idx} className="bg-slate-900 border border-slate-800 p-6 rounded-2xl hover:border-blue-500/50 transition-all">
-                  <h4 className="text-xl font-bold mb-2">{pkg.name}</h4>
-                  <p className="text-slate-400 mb-6 font-semibold">{pkg.days} วัน</p>
-                  <div className="flex items-baseline gap-1 mb-6">
-                    <span className="text-3xl font-bold text-blue-500">฿{pkg.price}</span>
-                    <span className="text-slate-500 text-sm">/ครั้ง</span>
+              {/* ดึงแพ็กเกจทั้งหมดจากฐานข้อมูลมาโชว์ */}
+              {await prisma.package.findMany({ orderBy: { durationDays: 'asc' } }).then(packages => 
+                packages.map((pkg) => (
+                  <div key={pkg.id} className="bg-slate-900 border border-slate-800 p-6 rounded-2xl hover:border-blue-500/50 transition-all flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-xl font-bold mb-2">{pkg.name}</h4>
+                      <p className="text-slate-400 mb-6 font-semibold">{pkg.durationDays} วัน</p>
+                      <div className="flex items-baseline gap-1 mb-6">
+                        <span className="text-3xl font-bold text-blue-500">฿{pkg.price}</span>
+                      </div>
+                    </div>
+                    {/* ปุ่มกดซื้อที่เราจะสร้างเป็น Client Component */}
+                    <CheckoutButton packageId={pkg.id} packageName={pkg.name} />
                   </div>
-                  <button className="w-full bg-slate-800 hover:bg-blue-600 py-3 rounded-xl font-bold transition-all">
-                    เลือกแพ็กเกจนี้
-                  </button>
-                </div>
-              ))}
+                ))
+              )}
            </div>
         </div>
       </main>

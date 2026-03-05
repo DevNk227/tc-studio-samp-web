@@ -13,10 +13,12 @@ model User {
   username     String        @unique
   password     String        // รหัสผ่านของเกม
   role         String        @default("user") // เอาไว้แยก admin กับ user ธรรมดา
+  balance      Float         @default(0)
   createdAt    DateTime      @default(now())
   
   // เชื่อมความสัมพันธ์กับตารางแพ็กเกจ (1 ไอดี มี 1 แพ็กเกจที่ใช้งานอยู่)
   subscription Subscription? 
+  topups       TopupHistory[]
 }
 
 // ตารางข้อมูลแพ็กเกจที่เปิดขายบนเว็บ
@@ -42,4 +44,13 @@ model Subscription {
   hwid        String?  // เก็บ Device ID มือถือ (ตอนซื้อใหม่ๆ ให้เป็นค่าว่างไว้ก่อน)
   startDate   DateTime @default(now())
   expireDate  DateTime // วันหมดอายุ (เอาไว้ให้ API เช็ค)
+}
+
+model TopupHistory {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  amount        Float    // จำนวนเงินที่เติม
+  slipRef       String   @unique // รหัสอ้างอิงสลิป (สำคัญมาก! ใส่ @unique เพื่อให้ระบบกันสลิปซ้ำอัตโนมัติ)
+  createdAt     DateTime @default(now())
 }
