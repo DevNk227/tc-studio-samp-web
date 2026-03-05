@@ -2,11 +2,13 @@
 "use client";
 
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
+// 👇 เพิ่ม SessionProvider เข้ามาใช้งาน 👇
+import { useSession, signOut, SessionProvider } from "next-auth/react"; 
 import { Wallet, History, LayoutDashboard, User, LogOut, Menu, X, Gamepad2 } from "lucide-react";
 import { useState } from "react";
 
-export default function Navbar() {
+// --- แยกส่วนเนื้อหา Navbar ออกมา ---
+function NavbarContent() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -31,12 +33,10 @@ export default function Navbar() {
                   <LayoutDashboard size={18} /> แดชบอร์ด
                 </Link>
                 
-                {/* 👇 ปุ่มเติมเงินสีเขียวเด่นๆ 👇 */}
                 <Link href="/topup" className="text-green-400 hover:text-green-300 flex items-center gap-1.5 font-bold transition-colors drop-shadow-[0_0_8px_rgba(74,222,128,0.5)]">
                   <Wallet size={18} /> เติมเงิน
                 </Link>
                 
-                {/* 👇 ปุ่มประวัติ 👇 */}
                 <Link href="/history" className="text-slate-300 hover:text-white flex items-center gap-1.5 font-medium transition-colors">
                   <History size={18} /> ประวัติ
                 </Link>
@@ -102,5 +102,14 @@ export default function Navbar() {
         </div>
       )}
     </nav>
+  );
+}
+
+// 👇 นำ NavbarContent มาใส่กล่อง SessionProvider เพื่อกัน Error พังตอน Build 👇
+export default function Navbar() {
+  return (
+    <SessionProvider>
+      <NavbarContent />
+    </SessionProvider>
   );
 }
