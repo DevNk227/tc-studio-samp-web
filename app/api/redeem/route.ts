@@ -8,18 +8,22 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
   try {
     const session = await getServerSession();
-    // 1. เช็คว่าล็อกอินหรือยัง
-    if (!session || !session.user?.email) {
+    
+    // 1. เช็คว่าล็อกอินหรือยัง (ใช้ session.user.name แทน email)
+    if (!session || !session.user?.name) {
       return NextResponse.json({ error: "กรุณาเข้าสู่ระบบก่อนกรอกโค้ด" }, { status: 401 });
     }
 
     const { code } = await req.json();
     if (!code) return NextResponse.json({ error: "กรุณากรอกโค้ดไอเทม" }, { status: 400 });
 
-    const userEmail = session.user.email;
+    // ดึงชื่อผู้ใช้จาก Session
+    const userName = session.user.name;
 
-    // 2. ดึงข้อมูล User (เพื่อให้ได้ id มาใช้งาน)
-    const user = await prisma.user.findUnique({ where: { email: userEmail } });
+    // 2. ดึงข้อมูล User (หาจากชื่อผู้ใช้ แทนอีเมล)
+    // ⚠️ หมายเหตุ: ถ้าในไฟล์ schema.prisma ของคุณ ฟิลด์นี้ชื่อ "name" ให้เปลี่ยนเป็น name: userName
+    const user = await prisma.user.findUnique({ where: { username: userName } });
+    
     if (!user) return NextResponse.json({ error: "ไม่พบข้อมูลผู้ใช้งาน" }, { status: 404 });
 
     // 3. ค้นหาโค้ดในระบบ
@@ -35,19 +39,16 @@ export async function POST(req: Request) {
     });
     if (alreadyUsed) return NextResponse.json({ error: "คุณเคยรับรางวัลจากโค้ดนี้ไปแล้ว!" }, { status: 400 });
 
-    // 5. แจกพอยท์ + บันทึกประวัติ (ทำพร้อมกันเพื่อความปลอดภัย)
+    // 5. แจกพอยท์ + บันทึกประวัติ
     await prisma.$transaction([
-      // อัปเดตพอยท์ให้ลูกค้า (ถ้าฟิลด์เงินในตาราง User ของคุณชื่ออื่น เช่น balance ให้เปลี่ยนคำว่า points เป็นคำนั้นครับ)
       prisma.user.update({
         where: { id: user.id },
         data: { points: { increment: redeemCode.points } } 
       }),
-      // เพิ่มยอดคนใช้โค้ด +1
       prisma.redeemCode.update({
         where: { id: redeemCode.id },
         data: { usedCount: { increment: 1 } }
       }),
-      // บันทึกประวัติว่าคนนี้ใช้โค้ดนี้แล้ว
       prisma.redemption.create({
         data: { userId: user.id, codeId: redeemCode.id }
       })
