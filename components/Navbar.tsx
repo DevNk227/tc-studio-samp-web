@@ -2,12 +2,11 @@
 "use client";
 
 import Link from "next/link";
-// 👇 เพิ่ม SessionProvider เข้ามาใช้งาน 👇
 import { useSession, signOut, SessionProvider } from "next-auth/react"; 
-import { Wallet, History, LayoutDashboard, User, LogOut, Menu, X, Gamepad2 } from "lucide-react";
+// 👇 เพิ่มไอคอน Gift สำหรับหน้ากรอกโค้ด
+import { Wallet, History, LayoutDashboard, User, LogOut, Menu, X, Gamepad2, Download, Gift } from "lucide-react";
 import { useState } from "react";
 
-// --- แยกส่วนเนื้อหา Navbar ออกมา ---
 function NavbarContent() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
@@ -27,6 +26,11 @@ function NavbarContent() {
 
           {/* เมนูสำหรับหน้าจอคอมพิวเตอร์ (Desktop) */}
           <div className="hidden md:flex items-center gap-6">
+            
+            <Link href="/download" className="text-blue-400 hover:text-blue-300 flex items-center gap-1.5 font-bold transition-colors drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">
+              <Download size={18} /> ดาวน์โหลดเกม
+            </Link>
+
             {session ? (
               <>
                 <Link href="/dashboard" className="text-slate-300 hover:text-white flex items-center gap-1.5 font-medium transition-colors">
@@ -35,6 +39,11 @@ function NavbarContent() {
                 
                 <Link href="/topup" className="text-green-400 hover:text-green-300 flex items-center gap-1.5 font-bold transition-colors drop-shadow-[0_0_8px_rgba(74,222,128,0.5)]">
                   <Wallet size={18} /> เติมเงิน
+                </Link>
+
+                {/* 👇 ปุ่มกรอกโค้ด (Redeem) สีทอง/เหลือง 👇 */}
+                <Link href="/redeem" className="text-yellow-400 hover:text-yellow-300 flex items-center gap-1.5 font-bold transition-colors drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]">
+                  <Gift size={18} /> กรอกโค้ด
                 </Link>
                 
                 <Link href="/history" className="text-slate-300 hover:text-white flex items-center gap-1.5 font-medium transition-colors">
@@ -61,7 +70,7 @@ function NavbarContent() {
             )}
           </div>
 
-          {/* ปุ่มเมนูสำหรับมือถือ (Hamburger Icon) */}
+          {/* ปุ่มเมนูสำหรับมือถือ */}
           <div className="md:hidden flex items-center">
             <button onClick={() => setIsOpen(!isOpen)} className="text-slate-300 hover:text-white p-2">
               {isOpen ? <X size={28} /> : <Menu size={28} />}
@@ -74,6 +83,11 @@ function NavbarContent() {
       {isOpen && (
         <div className="md:hidden bg-slate-900 border-b border-slate-800 absolute w-full shadow-2xl">
           <div className="px-4 pt-2 pb-6 space-y-2">
+            
+            <Link href="/download" onClick={() => setIsOpen(false)} className="block px-4 py-3 mb-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold flex items-center gap-3">
+              <Download size={20} /> ดาวน์โหลดเกม
+            </Link>
+
             {session ? (
               <>
                 <Link href="/dashboard" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center gap-3">
@@ -82,6 +96,12 @@ function NavbarContent() {
                 <Link href="/topup" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl bg-green-500/10 text-green-400 border border-green-500/20 font-bold flex items-center gap-3">
                   <Wallet size={20} /> เติมเงิน
                 </Link>
+                
+                {/* 👇 ปุ่มกรอกโค้ดสำหรับมือถือ 👇 */}
+                <Link href="/redeem" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 font-bold flex items-center gap-3">
+                  <Gift size={20} /> กรอกโค้ดรับรางวัล
+                </Link>
+
                 <Link href="/history" onClick={() => setIsOpen(false)} className="block px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white font-medium flex items-center gap-3">
                   <History size={20} /> ประวัติการทำรายการ
                 </Link>
@@ -105,7 +125,6 @@ function NavbarContent() {
   );
 }
 
-// 👇 นำ NavbarContent มาใส่กล่อง SessionProvider เพื่อกัน Error พังตอน Build 👇
 export default function Navbar() {
   return (
     <SessionProvider>

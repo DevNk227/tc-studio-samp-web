@@ -77,3 +77,25 @@ model LauncherConfig {
   serverIp              String   @default("127.0.0.1")
   serverPort            Int      @default(7777)
 }
+
+// เพิ่มตารางนี้ลงไปด้านล่างสุด
+model RedeemCode {
+  id          String   @id @default(cuid())
+  code        String   @unique             // ชื่อโค้ด (เช่น "TCSTUDIO2026")
+  points      Float                        // จำนวนพอยท์ที่ได้
+  maxUses     Int      @default(1)         // จำนวนครั้งที่โค้ดนี้เติมได้ (เช่น แจก 100 คน)
+  usedCount   Int      @default(0)         // จำนวนคนที่เติมไปแล้ว
+  isActive    Boolean  @default(true)      // เปิด/ปิด การใช้งานโค้ดนี้
+  createdAt   DateTime @default(now())
+}
+
+// ตารางสำหรับจำว่าใครเคยใช้โค้ดไหนไปแล้ว (กันคนกดซ้ำ)
+model Redemption {
+  id        String   @id @default(cuid())
+  userId    String   // รหัสผู้ใช้งาน (อ้างอิงจากตาราง User)
+  codeId    String   // รหัสโค้ด (อ้างอิงจากตาราง RedeemCode)
+  createdAt DateTime @default(now())
+
+  // บังคับว่า 1 คน ใช้ 1 โค้ดได้แค่ครั้งเดียว
+  @@unique([userId, codeId]) 
+}
