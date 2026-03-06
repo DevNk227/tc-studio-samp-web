@@ -92,7 +92,7 @@ model RedeemCode {
 // ตารางสำหรับจำว่าใครเคยใช้โค้ดไหนไปแล้ว (กันคนกดซ้ำ)
 model Redemption {
   id        String   @id @default(cuid())
-  userId    String   // รหัสผู้ใช้งาน (อ้างอิงจากตาราง User)
+  userId    Int   // รหัสผู้ใช้งาน (อ้างอิงจากตาราง User)
   codeId    String   // รหัสโค้ด (อ้างอิงจากตาราง RedeemCode)
   createdAt DateTime @default(now())
 
