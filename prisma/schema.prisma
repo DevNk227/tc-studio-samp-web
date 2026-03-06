@@ -20,6 +20,8 @@ model User {
   subscription Subscription? 
   topups       TopupHistory[]
   launcherConfig LauncherConfig?
+  points   Int     @default(0)
+
 }
 
 // ตารางข้อมูลแพ็กเกจที่เปิดขายบนเว็บ

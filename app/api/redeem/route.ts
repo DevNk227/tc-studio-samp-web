@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     await prisma.$transaction([
       prisma.user.update({
         where: { id: user.id },
-        data: { points: { increment: redeemCode.points } } 
+        data: { balance: { increment: redeemCode.points } } 
       }),
       prisma.redeemCode.update({
         where: { id: redeemCode.id },
