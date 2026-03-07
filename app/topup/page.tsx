@@ -94,12 +94,12 @@ export default function TopupPage() {
                 <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-800">
                   <p className="text-slate-500 text-xs font-semibold mb-1 uppercase tracking-wider">ธนาคาร / พร้อมเพย์</p>
                   <p className="text-white font-bold text-lg flex items-center gap-2">
-                    <QrCode className="text-blue-400" size={20} /> พร้อมเพย์ (PromptPay)
+                    <QrCode className="text-blue-400" size={20} /> กสิกรไทย
                   </p>
                 </div>
                 <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-800">
                   <p className="text-slate-500 text-xs font-semibold mb-1 uppercase tracking-wider">เลขบัญชี</p>
-                  <p className="text-green-400 font-mono font-bold text-2xl tracking-widest">099-XXX-XXXX</p>
+                  <p className="text-green-400 font-mono font-bold text-2xl tracking-widest">140-879-8066</p>
                 </div>
                 <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-800">
                   <p className="text-slate-500 text-xs font-semibold mb-1 uppercase tracking-wider">ชื่อบัญชี</p>
