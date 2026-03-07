@@ -30,6 +30,40 @@ export async function POST(request: Request) {
       }
     });
 
+    // 4. ส่งแจ้งเตือนไปยัง Discord (ทำงานอยู่เบื้องหลัง)
+    try {
+      const botToken = process.env.DISCORD_BOT_TOKEN;
+      const channelId = process.env.DISCORD_CHANNEL_ID;
+
+      if (botToken && channelId) {
+        await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bot ${botToken}`,
+            'Content-Type': 'application/json' 
+          },
+          body: JSON.stringify({
+            embeds: [
+              {
+                title: "🎉 มีลูกค้าสมัครสมาชิกใหม่!",
+                description: `ยินดีต้อนรับผู้ใช้งานใหม่เข้าสู่ระบบ TC STUDIO`,
+                color: 3066993, // สีเขียว
+                fields: [
+                  { name: "ชื่อผู้ใช้ (Username)", value: `\`${newUser.username}\``, inline: true },
+                  { name: "ระดับไอดี (Role)", value: `\`${newUser.role}\``, inline: true }
+                ],
+                timestamp: new Date().toISOString(),
+                footer: { text: "TC STUDIO Auto-Notification" }
+              }
+            ]
+          })
+        });
+      }
+    } catch (discordError) {
+      // ถ้าส่งแจ้งเตือนพลาด ให้แค่แจ้งเตือนใน Console แต่ไม่ต้องให้เว็บพัง
+      console.error("Discord Notification Failed:", discordError);
+    }
+
     return NextResponse.json({ message: "สมัครสมาชิกสำเร็จ!" }, { status: 201 });
 
   } catch (error) {

@@ -101,3 +101,11 @@ model Redemption {
   // บังคับว่า 1 คน ใช้ 1 โค้ดได้แค่ครั้งเดียว
   @@unique([userId, codeId]) 
 }
+
+// ตารางสำหรับเก็บประกาศจาก Admin
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String   // หัวข้อประกาศ
+  message   String   // เนื้อหาประกาศ
+  createdAt DateTime @default(now())
+}
